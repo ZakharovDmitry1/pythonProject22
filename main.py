@@ -7,10 +7,12 @@ import pygame
 
 FPS = 50
 pygame.init()
-pygame.display.set_caption("Перемещение героя")
-screen = pygame.display.set_mode((500, 500))
+pygame.display.set_caption("Перемещение героя. Новый уровень")
+screen = pygame.display.set_mode((550, 550))
 WIDTH, HEIGHT = 500, 500
 clock = pygame.time.Clock()
+
+pos1 = [-1, -1]
 
 
 
@@ -78,12 +80,14 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super(Player, self).__init__(player_group, all_sprites)
         self.image = player_image
-        self.pos = [4, 4]
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.pos = [pos_x, pos_y]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 15, tile_height * pos_y + 5)
 
     def move_player(self, coords):
-        if level[self.pos[0] + coords[0]][self.pos[1] + coords[1]] != '#':
+        if level[(self.pos[1] + coords[1]) % level.__len__()][(self.pos[0] + coords[0]) % level[0].__len__()] != '#':
             self.rect = self.rect.move(coords[0] * 50, coords[1] * 50)
             self.pos[0] += coords[0]
             self.pos[1] += coords[1]
@@ -113,7 +117,7 @@ def start_screen():
                   "Пампампам",
                   "НЕДО SOUL KNIGHT"]
 
-    fon = pygame.transform.scale(pygame.image.load('Data/img.png'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(pygame.image.load('Data/img.png'), (550, 550))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -160,7 +164,7 @@ def start_game():
         player_group.draw(screen)
         pygame.display.flip()
         camera.update(player)
-        # обновляем положение всех спрайтов
+        #обновляем положение всех спрайтов
         for sprite in all_sprites:
             camera.apply(sprite)
 
@@ -172,7 +176,9 @@ class Camera:
 
     def apply(self, obj):
         obj.rect.x += self.dx
+        obj.rect.x %= 500
         obj.rect.y += self.dy
+        obj.rect.y %= 500
 
     def update(self, target):
         self.dx = -(target.rect.x + target.rect.w // 2 - WIDTH // 2)
